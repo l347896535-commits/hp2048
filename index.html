@@ -1,0 +1,2352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>魔法进化 - 手机版</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none;
+        }
+
+        body {
+            font-family: 'Cinzel', serif;
+            background: linear-gradient(135deg, #0a0a2e 0%, #1a1a4e 50%, #2d1b4e 100%);
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(147, 51, 234, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.05) 0%, transparent 30%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .game-container {
+            background: linear-gradient(145deg, #1e1e3f 0%, #2a2a4a 100%);
+            border: 2px solid #ffd700;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3), 0 0 60px rgba(147, 51, 234, 0.2);
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 400px;
+            margin: auto;
+        }
+
+        .game-container::before {
+            content: '⚡';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            background: #1e1e3f;
+            padding: 0 8px;
+            border: 2px solid #ffd700;
+            border-radius: 50%;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ffd700, #ffed4a, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            letter-spacing: 1px;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .scores {
+            display: flex;
+            gap: 6px;
+        }
+
+        .score-box {
+            background: linear-gradient(145deg, #2a2a4a, #1a1a3a);
+            border: 1px solid #ffd700;
+            padding: 6px 10px;
+            border-radius: 6px;
+            text-align: center;
+            min-width: 70px;
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.2);
+        }
+
+        .score-label {
+            font-size: 9px;
+            color: #ffd700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .score-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            gap: 8px;
+        }
+
+        .game-message {
+            font-size: 12px;
+            color: #c4b5fd;
+            flex: 1;
+            text-align: center;
+        }
+
+        .new-game-btn {
+            background: linear-gradient(145deg, #7c3aed, #5b21b6);
+            color: #ffd700;
+            border: 1px solid #ffd700;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Cinzel', serif;
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 10px rgba(147, 51, 234, 0.4);
+            white-space: nowrap;
+        }
+
+        .new-game-btn:active {
+            background: linear-gradient(145deg, #6d28d9, #5b21b6);
+            box-shadow: 0 0 15px rgba(147, 51, 234, 0.6);
+            transform: scale(0.95);
+        }
+
+        .revive-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .avada-btn {
+            background: linear-gradient(145deg, #7f1d1d, #450a0a);
+            color: #fecaca;
+            border: 1px solid #ef4444;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Cinzel', serif;
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+            white-space: nowrap;
+        }
+
+        .avada-btn:hover {
+            background: linear-gradient(145deg, #991b1b, #7f1d1d);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+            transform: scale(1.02);
+        }
+
+        .avada-btn:active {
+            background: linear-gradient(145deg, #450a0a, #1f0505);
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.8);
+            transform: scale(0.95);
+        }
+
+        .patronus-btn {
+            background: linear-gradient(145deg, #059669, #047857);
+            color: #ecfdf5;
+            border: 1px solid #34d399;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Cinzel', serif;
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 15px rgba(52, 211, 153, 0.4);
+            white-space: nowrap;
+        }
+
+        .patronus-btn:hover {
+            background: linear-gradient(145deg, #10b981, #059669);
+            box-shadow: 0 0 20px rgba(52, 211, 153, 0.6);
+            transform: scale(1.02);
+        }
+
+        .patronus-btn:active {
+            background: linear-gradient(145deg, #047857, #065f46);
+            box-shadow: 0 0 25px rgba(52, 211, 153, 0.8);
+            transform: scale(0.95);
+        }
+
+        .revive-stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 12px;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .revive-stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .avada-stat-label {
+            color: #fca5a5;
+        }
+
+        .avada-stat-value {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .patronus-stat-label {
+            color: #6ee7b7;
+        }
+
+        .patronus-stat-value {
+            color: #34d399;
+            font-weight: bold;
+        }
+
+        .undo-btn {
+            background: linear-gradient(145deg, #7c3aed, #5b21b6);
+            color: #ffd700;
+            border: 1px solid #ffd700;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Cinzel', serif;
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 10px rgba(147, 51, 234, 0.4);
+            white-space: nowrap;
+        }
+
+        .undo-btn:active:not(:disabled) {
+            background: linear-gradient(145deg, #6d28d9, #5b21b6);
+            box-shadow: 0 0 15px rgba(147, 51, 234, 0.6);
+            transform: scale(0.95);
+        }
+
+        .undo-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .grid-container {
+            background: linear-gradient(145deg, #1a1a3a, #0f0f2a);
+            border: 1px solid #7c3aed;
+            border-radius: 10px;
+            padding: 8px;
+            position: relative;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+            touch-action: none;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            min-height: 55px;
+            background: rgba(42, 42, 74, 0.6);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 11px;
+            font-weight: bold;
+            transition: all 0.15s ease;
+            text-align: center;
+            padding: 3px;
+            line-height: 1.2;
+            word-break: break-word;
+            overflow: hidden;
+        }
+
+        .cell .level-number {
+            font-size: 8px;
+            opacity: 0.6;
+            margin-bottom: 1px;
+            white-space: nowrap;
+        }
+
+        .cell .level-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        /* 长等级名称样式 */
+        .cell.long-text .level-name {
+            font-size: 8px;
+        }
+
+        .cell.medium-text .level-name {
+            font-size: 9px;
+        }
+
+        /* 光明线等级颜色 - 初级 */
+        .cell[data-value="2"] { background: linear-gradient(145deg, #4a5568, #2d3748); color: #cbd5e0; border-color: #718096; }
+        .cell[data-value="4"] { background: linear-gradient(145deg, #744210, #5c2d0d); color: #fbd38d; border-color: #dd6b20; }
+        .cell[data-value="8"] { background: linear-gradient(145deg, #1e40af, #1e3a8a); color: #dbeafe; border-color: #3b82f6; }
+        .cell[data-value="16"] { background: linear-gradient(145deg, #7c3aed, #6d28d9); color: #f3e8ff; border-color: #a78bfa; }
+        .cell[data-value="32"] { background: linear-gradient(145deg, #2c5282, #1a365d); color: #bee3f8; border-color: #3182ce; }
+        .cell[data-value="64"] { background: linear-gradient(145deg, #553c9a, #44337a); color: #e9d8fd; border-color: #805ad5; }
+        .cell[data-value="128"] { background: linear-gradient(145deg, #c05621, #9c4221); color: #feebc8; border-color: #dd6b20; box-shadow: 0 0 10px rgba(221, 107, 32, 0.4); }
+        .cell[data-value="256"] { background: linear-gradient(145deg, #0e7490, #155e75); color: #aee2e9; border-color: #0891b2; }
+        .cell[data-value="512"] { background: linear-gradient(145deg, #9d174d, #831843); color: #fce7f3; border-color: #db2777; box-shadow: 0 0 10px rgba(219, 39, 119, 0.4); }
+
+        /* 光明线等级颜色 - 高级（分支后） */
+        .cell[data-value="1024"] { background: linear-gradient(145deg, #1e3a5f, #172a45); color: #bee3f8; border-color: #63b3ed; box-shadow: 0 0 15px rgba(99, 179, 237, 0.5); }
+        .cell[data-value="2048"] { background: linear-gradient(145deg, #1a365d, #0f2540); color: #90cdf4; border-color: #4299e1; box-shadow: 0 0 18px rgba(66, 153, 225, 0.6); }
+        .cell[data-value="4096"] { background: linear-gradient(145deg, #1e40af, #172554); color: #bfdbfe; border-color: #60a5fa; box-shadow: 0 0 20px rgba(96, 165, 250, 0.7); }
+        .cell[data-value="8192"] { background: linear-gradient(145deg, #1e3a8a, #172554); color: #dbeafe; border-color: #93c5fd; box-shadow: 0 0 25px rgba(147, 197, 253, 0.8); animation: auror-glow 2s ease-in-out infinite; }
+        .cell[data-value="16384"] { background: linear-gradient(145deg, #fef3c7, #fcd34d); color: #78350f; border-color: #fbbf24; box-shadow: 0 0 35px rgba(251, 191, 36, 0.9); animation: auror-supreme-pulse 1.5s ease-in-out infinite; }
+        .cell[data-value="32768"] { background: linear-gradient(145deg, #e0e7ff, #c7d2fe); color: #3730a3; border-color: #6366f1; box-shadow: 0 0 40px rgba(99, 102, 241, 1); animation: merlin-pulse 1.5s ease-in-out infinite; }
+
+        /* 黑暗线等级颜色 */
+        .cell.dark-path[data-value="1024"] { background: linear-gradient(145deg, #1a1a2e, #0f0f1a); color: #b39ddb; border-color: #5e35b1; box-shadow: 0 0 15px rgba(94, 53, 177, 0.5); }
+        .cell.dark-path[data-value="2048"] { background: linear-gradient(145deg, #1e0033, #12001f); color: #ce93d8; border-color: #7b1fa2; box-shadow: 0 0 18px rgba(123, 31, 162, 0.6); }
+        .cell.dark-path[data-value="4096"] { background: linear-gradient(145deg, #2d0a0a, #1a0505); color: #ef9a9a; border-color: #b71c1c; box-shadow: 0 0 20px rgba(183, 28, 28, 0.6); }
+        .cell.dark-path[data-value="8192"] { background: linear-gradient(145deg, #0a0a0a, #000000); color: #ffd700; border-color: #ffd700; box-shadow: 0 0 25px rgba(255, 215, 0, 0.8); animation: dark-lord-glow 2s ease-in-out infinite; }
+        .cell.dark-path[data-value="16384"] { background: linear-gradient(145deg, #1a0000, #0a0000); color: #ff1744; border-color: #ff1744; box-shadow: 0 0 35px rgba(255, 23, 68, 0.9); animation: dark-wizard-pulse 1.5s ease-in-out infinite; }
+        .cell.dark-path[data-value="32768"] { background: linear-gradient(145deg, #1a0a2e, #0f0f1a); color: #e9d5ff; border-color: #a855f7; box-shadow: 0 0 40px rgba(168, 85, 247, 1); animation: merlin-dark-pulse 1.5s ease-in-out infinite; }
+
+        /* 光明线高级动画 */
+        @keyframes auror-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(147, 197, 253, 0.6), 0 0 40px rgba(99, 179, 237, 0.4); }
+            50% { box-shadow: 0 0 35px rgba(147, 197, 253, 0.9), 0 0 50px rgba(99, 179, 237, 0.6); }
+        }
+
+        @keyframes auror-supreme-pulse {
+            0%, 100% { box-shadow: 0 0 25px rgba(251, 191, 36, 0.8), 0 0 50px rgba(251, 191, 36, 0.5); }
+            50% { box-shadow: 0 0 45px rgba(251, 191, 36, 1), 0 0 60px rgba(251, 191, 36, 0.7); }
+        }
+
+        @keyframes dark-lord-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 0 40px rgba(0, 0, 0, 0.8); }
+            50% { box-shadow: 0 0 35px rgba(255, 215, 0, 0.9), 0 0 50px rgba(0, 0, 0, 1); }
+        }
+
+        @keyframes dark-wizard-pulse {
+            0%, 100% { box-shadow: 0 0 25px rgba(255, 23, 68, 0.7), 0 0 50px rgba(0, 0, 0, 0.8); }
+            50% { box-shadow: 0 0 40px rgba(255, 23, 68, 1), 0 0 60px rgba(255, 0, 0, 0.5); }
+        }
+
+        @keyframes merlin-pulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(99, 102, 241, 0.8), 0 0 60px rgba(129, 140, 248, 0.5); }
+            50% { box-shadow: 0 0 50px rgba(99, 102, 241, 1), 0 0 80px rgba(165, 180, 252, 0.7); }
+        }
+
+        @keyframes merlin-dark-pulse {
+            0%, 100% { box-shadow: 0 0 30px rgba(168, 85, 247, 0.8), 0 0 60px rgba(0, 0, 0, 0.8); }
+            50% { box-shadow: 0 0 50px rgba(168, 85, 247, 1), 0 0 80px rgba(0, 0, 0, 1); }
+        }
+
+        /* 阿瓦达索命动画 */
+        @keyframes avada-effect {
+            0% { filter: brightness(1); }
+            20% { filter: brightness(3) hue-rotate(-30deg); }
+            40% { filter: brightness(0.5) saturate(0); }
+            60% { filter: brightness(2) hue-rotate(30deg); }
+            80% { filter: brightness(1.2); }
+            100% { filter: brightness(1); }
+        }
+
+        .grid-container.avada-active {
+            animation: avada-flash 0.5s ease;
+        }
+
+        @keyframes avada-flash {
+            0% { box-shadow: inset 0 0 0 0 transparent; }
+            25% { box-shadow: inset 0 0 50px 20px rgba(220, 38, 38, 0.8); }
+            50% { box-shadow: inset 0 0 80px 30px rgba(0, 0, 0, 0.9); }
+            75% { box-shadow: inset 0 0 50px 20px rgba(220, 38, 38, 0.5); }
+            100% { box-shadow: inset 0 0 0 0 transparent; }
+        }
+
+        /* 呼神护卫动画 */
+        @keyframes patronus-effect {
+            0% { filter: brightness(1); }
+            30% { filter: brightness(2) hue-rotate(60deg); }
+            60% { filter: brightness(1.5); }
+            100% { filter: brightness(1); }
+        }
+
+        .grid-container.patronus-active {
+            animation: patronus-glow 0.6s ease;
+        }
+
+        @keyframes patronus-glow {
+            0% { box-shadow: inset 0 0 0 0 transparent; }
+            25% { box-shadow: inset 0 0 50px 20px rgba(52, 211, 153, 0.8); }
+            50% { box-shadow: inset 0 0 80px 30px rgba(147, 197, 253, 0.6); }
+            75% { box-shadow: inset 0 0 50px 20px rgba(52, 211, 153, 0.5); }
+            100% { box-shadow: inset 0 0 0 0 transparent; }
+        }
+
+        /* 被消除的方块动画 */
+        .cell.avada-killed {
+            animation: avada-kill 0.4s ease forwards;
+        }
+
+        @keyframes avada-kill {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.5; background: #ef4444; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        /* 被晋级的方块动画 */
+        .cell.patronus-upgraded {
+            animation: patronus-upgrade 0.5s ease;
+        }
+
+        @keyframes patronus-upgrade {
+            0% { transform: scale(1); }
+            30% { transform: scale(1.3); box-shadow: 0 0 20px rgba(52, 211, 153, 0.8); }
+            60% { transform: scale(0.9); }
+            100% { transform: scale(1); }
+        }
+
+        .cell.merged {
+            animation: magic-pop 0.3s ease;
+        }
+
+        @keyframes magic-pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); box-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+            100% { transform: scale(1); }
+        }
+
+        .game-over-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 15, 42, 0.95);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            border: 1px solid #7c3aed;
+            z-index: 10;
+        }
+
+        .game-over-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .game-over-text {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ffd700, #ffed4a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            text-align: center;
+            padding: 0 10px;
+        }
+
+        .final-scores {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .final-score-item {
+            text-align: center;
+        }
+
+        .final-score-label {
+            font-size: 10px;
+            color: #c4b5fd;
+            margin-bottom: 4px;
+        }
+
+        .final-score-value {
+            font-size: 22px;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        /* 成就弹窗样式 */
+        .achievement-popup {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, #1e1e3f, #2a2a4a);
+            border: 3px solid #ffd700;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s ease;
+            box-shadow: 0 0 50px rgba(255, 215, 0, 0.6), 0 0 80px rgba(147, 51, 234, 0.4);
+            width: 85%;
+            max-width: 280px;
+        }
+
+        .achievement-popup.show {
+            opacity: 1;
+            pointer-events: auto;
+            animation: achievement-appear 0.6s ease;
+        }
+
+        @keyframes achievement-appear {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .achievement-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+            animation: achievement-bounce 1s ease infinite;
+        }
+
+        @keyframes achievement-bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .achievement-title {
+            font-size: 20px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ffd700, #ffed4a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .achievement-level {
+            font-size: 32px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+        }
+
+        .achievement-desc {
+            font-size: 13px;
+            color: #c4b5fd;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            white-space: pre-line;
+        }
+
+        .achievement-btn {
+            background: linear-gradient(145deg, #7c3aed, #5b21b6);
+            color: #ffd700;
+            border: 2px solid #ffd700;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Cinzel', serif;
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 15px rgba(147, 51, 234, 0.5);
+        }
+
+        .achievement-btn:active {
+            background: linear-gradient(145deg, #6d28d9, #5b21b6);
+            box-shadow: 0 0 20px rgba(147, 51, 234, 0.7);
+            transform: scale(0.95);
+        }
+
+        /* 分支选择弹窗样式 */
+        .choice-popup {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border: 3px solid #9333ea;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            z-index: 200;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s ease;
+            box-shadow: 0 0 50px rgba(147, 51, 234, 0.6), 0 0 80px rgba(0, 0, 0, 0.8);
+            width: 90%;
+            max-width: 320px;
+        }
+
+        .choice-popup.show {
+            opacity: 1;
+            pointer-events: auto;
+            animation: choice-appear 0.6s ease;
+        }
+
+        @keyframes choice-appear {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .choice-icon {
+            font-size: 56px;
+            margin-bottom: 15px;
+            animation: choice-pulse 2s ease infinite;
+        }
+
+        @keyframes choice-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .choice-title {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #9333ea, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+
+        .choice-desc {
+            font-size: 14px;
+            color: #d4d4d8;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .choice-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .choice-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 18px 20px;
+            border-radius: 12px;
+            font-family: 'Cinzel', serif;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid;
+        }
+
+        .choice-btn .btn-icon {
+            font-size: 36px;
+            margin-bottom: 8px;
+        }
+
+        .choice-btn .btn-text {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .choice-btn .btn-subtext {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        .light-btn {
+            background: linear-gradient(145deg, #1e3a5f, #172554);
+            border-color: #3b82f6;
+            color: #bfdbfe;
+        }
+
+        .light-btn:hover {
+            background: linear-gradient(145deg, #2563eb, #1d4ed8);
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .light-btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .dark-btn {
+            background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+            border-color: #6b21a8;
+            color: #e9d5ff;
+        }
+
+        .dark-btn:hover {
+            background: linear-gradient(145deg, #7c3aed, #5b21b6);
+            box-shadow: 0 0 25px rgba(124, 58, 237, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .dark-btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        /* 魔法事件弹窗样式 */
+        .event-popup {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, #1e1e3f, #2a2a4a);
+            border: 3px solid #ec4899;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            z-index: 250;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s ease;
+            box-shadow: 0 0 50px rgba(236, 72, 153, 0.6), 0 0 80px rgba(147, 51, 234, 0.4);
+            width: 90%;
+            max-width: 340px;
+        }
+
+        .event-popup.show {
+            opacity: 1;
+            pointer-events: auto;
+            animation: event-appear 0.6s ease;
+        }
+
+        @keyframes event-appear {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .event-icon {
+            font-size: 52px;
+            margin-bottom: 12px;
+            animation: event-glow 1.5s ease infinite;
+        }
+
+        @keyframes event-glow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+
+        .event-title {
+            font-size: 22px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ec4899, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .event-desc {
+            font-size: 14px;
+            color: #d4d4d8;
+            margin-bottom: 25px;
+            line-height: 1.7;
+            min-height: 60px;
+        }
+
+        .event-choices {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .event-choice-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid;
+            color: #fff;
+        }
+
+        .event-choice-btn.light {
+            background: linear-gradient(145deg, #1e3a5f, #172554);
+            border-color: #3b82f6;
+        }
+
+        .event-choice-btn.light:hover {
+            background: linear-gradient(145deg, #2563eb, #1d4ed8);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        }
+
+        .event-choice-btn.dark {
+            background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+            border-color: #9333ea;
+        }
+
+        .event-choice-btn.dark:hover {
+            background: linear-gradient(145deg, #7c3aed, #5b21b6);
+            box-shadow: 0 0 20px rgba(147, 58, 237, 0.5);
+        }
+
+        .event-progress {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #a1a1aa;
+        }
+
+        .event-progress span {
+            color: #f472b6;
+            font-weight: bold;
+        }
+
+        /* 结果弹窗样式 */
+        .result-popup {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, #1e1e3f, #2a2a4a);
+            border: 3px solid #22c55e;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            z-index: 300;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s ease;
+            box-shadow: 0 0 50px rgba(34, 197, 94, 0.6), 0 0 80px rgba(0, 0, 0, 0.8);
+            width: 85%;
+            max-width: 300px;
+        }
+
+        .result-popup.show {
+            opacity: 1;
+            pointer-events: auto;
+            animation: result-appear 0.6s ease;
+        }
+
+        .result-popup.dark-result {
+            border-color: #9333ea;
+            box-shadow: 0 0 50px rgba(147, 51, 234, 0.6), 0 0 80px rgba(0, 0, 0, 0.8);
+        }
+
+        @keyframes result-appear {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .result-icon {
+            font-size: 52px;
+            margin-bottom: 12px;
+        }
+
+        .result-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+
+        .result-desc {
+            font-size: 14px;
+            color: #d4d4d8;
+            margin-bottom: 25px;
+            line-height: 1.7;
+            white-space: pre-line;
+        }
+
+        .result-btn {
+            background: linear-gradient(145deg, #22c55e, #16a34a);
+            color: #fff;
+            border: 2px solid #22c55e;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Cinzel', serif;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+        }
+
+        .result-popup.dark-result .result-btn {
+            background: linear-gradient(145deg, #9333ea, #7c3aed);
+            border-color: #9333ea;
+            box-shadow: 0 0 15px rgba(147, 51, 234, 0.4);
+        }
+
+        .result-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(34, 197, 94, 0.6);
+        }
+
+        .result-popup.dark-result .result-btn:hover {
+            box-shadow: 0 0 25px rgba(147, 51, 234, 0.6);
+        }
+
+        .instructions {
+            text-align: center;
+            color: #c4b5fd;
+            margin-top: 12px;
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        .level-legend {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            margin-top: 12px;
+            padding: 10px;
+            background: rgba(26, 26, 58, 0.8);
+            border-radius: 8px;
+            border: 1px solid rgba(147, 51, 234, 0.3);
+            max-height: 140px;
+            overflow-y: auto;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            color: #c4b5fd;
+        }
+
+        .legend-item.dark-level {
+            color: #a0a0a0;
+        }
+
+        .legend-divider {
+            width: 100%;
+            text-align: center;
+            padding: 8px 0;
+            color: #666;
+            font-size: 9px;
+            border-top: 1px solid #333;
+            margin-top: 5px;
+        }
+
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        /* 滑动提示动画 */
+        .swipe-hint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            color: rgba(255, 215, 0, 0.3);
+            pointer-events: none;
+            animation: swipe-animation 2s ease-in-out;
+            z-index: 5;
+        }
+
+        @keyframes swipe-animation {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            30% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+            70% { opacity: 0.5; transform: translate(-30%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-20%, -50%) scale(0.8); }
+        }
+
+        /* 小屏手机优化 */
+        @media (max-width: 360px) {
+            .cell {
+                min-height: 50px;
+                font-size: 10px;
+                padding: 2px;
+            }
+            .cell .level-number {
+                font-size: 7px;
+            }
+            .cell.long-text .level-name {
+                font-size: 7px;
+            }
+            .cell.medium-text .level-name {
+                font-size: 8px;
+            }
+            .title {
+                font-size: 24px;
+            }
+            .level-legend {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* 防止橡皮筋效果 */
+        html, body {
+            overscroll-behavior: none;
+        }
+
+        /* 水印样式 */
+        .watermark {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.3);
+            font-family: 'Cinzel', serif;
+            z-index: 1000;
+            pointer-events: none;
+            user-select: none;
+            text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    <div class="game-container">
+        <div class="header">
+            <h1 class="title">魔法进化</h1>
+            <div class="scores">
+                <div class="score-box">
+                    <div class="score-label">魔法值</div>
+                    <div class="score-value" id="score">0</div>
+                </div>
+                <div class="score-box">
+                    <div class="score-label">最高</div>
+                    <div class="score-value" id="best-score">0</div>
+                </div>
+            </div>
+        </div>
+        <div class="controls">
+            <div class="game-message" id="game-message">滑动屏幕移动</div>
+            <div style="display: flex; gap: 6px;">
+                <button class="undo-btn" id="undo-btn" disabled>↶ 悔棋</button>
+                <button class="new-game-btn" id="new-game">重新开始</button>
+            </div>
+        </div>
+        <div class="grid-container" id="grid-container">
+            <div class="grid" id="grid"></div>
+            <div class="game-over-overlay" id="game-over">
+                <div class="game-over-text">魔法旅程结束!</div>
+                <div class="final-scores">
+                    <div class="final-score-item">
+                        <div class="final-score-label">本次魔法值</div>
+                        <div class="final-score-value" id="final-score">0</div>
+                    </div>
+                    <div class="final-score-item">
+                        <div class="final-score-label">最高记录</div>
+                        <div class="final-score-value" id="final-best-score">0</div>
+                    </div>
+                </div>
+                <button class="new-game-btn" id="try-again">一忘皆空</button>
+                <div class="revive-buttons">
+                    <button class="avada-btn" id="avada-btn">💀 阿瓦达索命</button>
+                    <button class="patronus-btn" id="patronus-btn">🦅 呼神护卫</button>
+                </div>
+                <div class="revive-stats">
+                    <div class="revive-stat">
+                        <span class="avada-stat-label">阿瓦达:</span>
+                        <span class="avada-stat-value" id="avada-count">0</span>次
+                    </div>
+                    <div class="revive-stat">
+                        <span class="patronus-stat-label">呼神护卫:</span>
+                        <span class="patronus-stat-value" id="patronus-count">0</span>次
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="instructions">
+            ← → ↑ ↓ 滑动屏幕移动方块
+        </div>
+        <div class="level-legend" id="legend"></div>
+    </div>
+
+    <!-- 成就弹窗 -->
+    <div class="achievement-popup" id="achievement-popup">
+        <div class="achievement-icon">🎓</div>
+        <div class="achievement-title" id="achievement-title"></div>
+        <div class="achievement-level" id="achievement-level"></div>
+        <div class="achievement-desc" id="achievement-desc"></div>
+        <button class="achievement-btn" id="achievement-continue">继续魔法旅程</button>
+    </div>
+
+    <!-- 魔法事件弹窗 -->
+    <div class="event-popup" id="event-popup">
+        <div class="event-content">
+            <div class="event-icon">🔮</div>
+            <div class="event-title" id="event-title"></div>
+            <div class="event-desc" id="event-desc"></div>
+            <div class="event-choices" id="event-choices"></div>
+            <div class="event-progress">事件 <span id="event-progress-num">1</span>/3</div>
+        </div>
+    </div>
+
+    <!-- 事件结果弹窗 -->
+    <div class="result-popup" id="result-popup">
+        <div class="result-content">
+            <div class="result-icon" id="result-icon">✨</div>
+            <div class="result-title" id="result-title">抉择结果</div>
+            <div class="result-desc" id="result-desc"></div>
+            <button class="result-btn" id="result-continue">继续</button>
+        </div>
+    </div>
+
+    <script>
+        // 防止默认触摸行为
+        document.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+        }, { passive: false });
+
+        // 创建星星背景
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+        createStars();
+
+        // 巫师战力等级映射 - 光明线
+        const WIZARD_LEVELS = {
+            2: '麻瓜',
+            4: '哑炮',
+            8: '一年级',
+            16: '二年级',
+            32: '三年级',
+            64: '四年级',
+            128: '五年级',
+            256: '六年级',
+            512: '七年级',
+            1024: '实习傲罗',
+            2048: '傲罗',
+            4096: '凤凰社成员',
+            8192: '凤凰社领袖',
+            16384: '最伟大的白巫师',
+            32768: '梅林之约'
+        };
+
+        // 巫师战力等级映射 - 黑暗线
+        const DARK_WIZARD_LEVELS = {
+            1024: '见习食死徒',
+            2048: '食死徒',
+            4096: '高级食死徒',
+            8192: '黑魔王',
+            16384: '最伟大的黑巫师',
+            32768: '梅林之约'
+        };
+
+        // 成就配置 - 光明线
+        const ACHIEVEMENTS = {
+            256: {
+                icon: '📜',
+                title: '通过O.W.L.s考试！',
+                desc: '恭喜！你已成功通过五年级O.W.L.s考试！\n继续努力，向N.E.W.T.s进发！'
+            },
+            1024: {
+                icon: '🎓',
+                title: '通过N.E.W.T.s考试！',
+                desc: '恭喜你完成了七年级所有学业！\nN.E.W.T.s考试已通过，开始你的实习傲罗生涯！'
+            },
+            2048: {
+                icon: '⚔️',
+                title: '恭喜成为傲罗！',
+                desc: '你已正式成为一名傲罗！\n黑暗恐惧你的名字，正义之剑为你而战！'
+            },
+            4096: {
+                icon: '🦉',
+                title: '恭喜加入凤凰社！',
+                desc: '邓布利多亲自邀请你加入凤凰社！\n与最伟大的巫师并肩作战，对抗黑魔法！'
+            },
+            16384: {
+                icon: '🌟',
+                title: '魔法已登峰造极！',
+                desc: '你已成为最伟大的白巫师！\n你的名字将被永远铭记在魔法史册中！'
+            },
+            32768: {
+                icon: '🔮',
+                title: '梅林之约！',
+                desc: '你已超越所有巫师！\n梅林亲自与你立下契约，你就是魔法世界的传奇！'
+            }
+        };
+
+        // 成就配置 - 黑暗线
+        const DARK_ACHIEVEMENTS = {
+            1024: {
+                icon: '🖤',
+                title: '成为见习食死徒！',
+                desc: '你选择了黑暗的道路...\n黑魔法将与你同在！'
+            },
+            2048: {
+                icon: '💀',
+                title: '晋升食死徒！',
+                desc: '你已正式成为黑魔王的忠实仆从！\n黑魔标记将永远铭刻在你的手臂上！'
+            },
+            4096: {
+                icon: '⚫',
+                title: '成为高级食死徒！',
+                desc: '你已获得黑魔王的极度信任！\n在黑暗世界中，你已位高权重！'
+            },
+            8192: {
+                icon: '🐍',
+                title: '成为黑魔王！',
+                desc: '你已取代伏地魔成为新的黑魔王！\n整个魔法世界都在你的阴影之下！\n蛇语将为你效忠！'
+            },
+            16384: {
+                icon: '👑',
+                title: '成为最伟大的黑巫师！',
+                desc: '你已超越黑魔王！\n整个魔法世界都在你的掌控之中！\n黑暗将为你加冕！'
+            },
+            32768: {
+                icon: '💜',
+                title: '梅林之约！',
+                desc: '你已超越黑魔王！\n与梅林签订黑暗契约，你就是黑暗世界的终极传奇！'
+            }
+        };
+
+        // 魔法事件抉择系统
+        const MAGIC_EVENTS = [
+            {
+                id: 1,
+                title: '神秘的黑魔法笔记',
+                description: '你在霍格沃茨的废弃教室里发现了一本古老的黑魔法笔记，上面记载着强大的魔法...',
+                choices: [
+                    { text: '将笔记交给校长', path: 'light', result: '笔记被妥善处理...\n邓布利多对你刮目相看' },
+                    { text: '偷偷学习其中的魔法', path: 'dark', result: '你打开了笔记...\n强大的力量涌入你的身体！' }
+                ]
+            },
+            {
+                id: 2,
+                title: '神秘人的邀请',
+                description: '一个神秘人找到你，承诺给你无上的力量和地位，但需要你为他做事...',
+                choices: [
+                    { text: '婉言谢绝', path: 'light', result: '你拒绝了他！\n保持了自己的立场' },
+                    { text: '考虑合作', path: 'dark', result: '你获得了他的信任！\n他的部分力量已被你掌握！' }
+                ]
+            },
+            {
+                id: 3,
+                title: '古老的交易',
+                description: '一个声音在你耳边低语：放弃某些东西，就能获得统治整个魔法世界的力量...',
+                choices: [
+                    { text: '拒绝交易', path: 'light', result: '你战胜了诱惑！\n内心更加坚定！' },
+                    { text: '接受交易', path: 'dark', result: '你接受了！\n整个魔法世界都将在你脚下颤抖！' }
+                ]
+            },
+            {
+                id: 4,
+                title: '禁林的请求',
+                description: '你在禁林深处遇到了一头强大的生物，它请求你帮助它脱困，作为回报，它愿意为你效力...',
+                choices: [
+                    { text: '帮助它脱困', path: 'light', result: '你帮助了它！\n它决定帮助你！' },
+                    { text: '与它签订契约', path: 'dark', result: '契约达成！\n它的力量与你融合！' }
+                ]
+            },
+            {
+                id: 5,
+                title: '时空裂隙',
+                description: '你发现了一个时空裂隙，里面传出强大而危险的魔力，有人告诉你可以通过它获得前所未有的力量...',
+                choices: [
+                    { text: '封印裂隙', path: 'light', result: '你成功封印了裂隙！\n魔法部对你感激不尽！' },
+                    { text: '进入获取力量', path: 'dark', result: '你进入了裂隙...\n当你出来时，你已拥有改天换地的力量！' }
+                ]
+            },
+            {
+                id: 6,
+                title: '同学的请求',
+                description: '一位同学被发现使用了争议的魔法伤害他人，魔法部要求你作证，但他曾帮助过你...',
+                choices: [
+                    { text: '说出真相', path: 'light', result: '你选择了真相！\n魔法世界因你而更加安全！' },
+                    { text: '帮助隐瞒', path: 'dark', result: '你包庇了他...\n他对你感激涕零，愿意为你效忠！' }
+                ]
+            },
+            {
+                id: 7,
+                title: '魔力源泉',
+                description: '你发现了一个古老的魔力源泉，它可以让你获得无比强大的魔力，但需要以某些东西作为代价...',
+                choices: [
+                    { text: '只取所需', path: 'light', result: '你控制住了欲望！\n获得了适度的力量！' },
+                    { text: '汲取全部', path: 'dark', result: '你汲取了全部力量！\n整个源泉为你而枯竭！' }
+                ]
+            },
+            {
+                id: 8,
+                title: '家族的遗产',
+                description: '你是古老巫师家族的最后传人，家族留下了一个强大的魔法道具，使用它可以让你瞬间获得无上力量...',
+                choices: [
+                    { text: '摧毁它', path: 'light', result: '你摧毁了它！\n你的正义之名传遍整个魔法界！' },
+                    { text: '使用它', path: 'dark', result: '你继承了力量！\n这是连最强者都忌惮的力量！' }
+                ]
+            },
+            {
+                id: 9,
+                title: '禁书',
+                description: '你在图书馆发现了一本被禁止的魔法书，里面记载着失传的魔法，但阅读它会耗费大量精力...',
+                choices: [
+                    { text: '上报学校', path: 'light', result: '你将书上交！\n校长对你刮目相看！' },
+                    { text: '悄悄研读', path: 'dark', result: '你掌握了失传的魔法！\n强大的力量在你体内涌动！' }
+                ]
+            },
+            {
+                id: 10,
+                title: '秘密任务',
+                description: '一个神秘人向你提供强大的魔法秘籍，但代价是你必须为他完成一项任务...',
+                choices: [
+                    { text: '婉言谢绝', path: 'light', result: '你拒绝了！\n坚守自己的原则！' },
+                    { text: '接受任务', path: 'dark', result: '你获得了秘籍！\n但也陷入了未知的漩涡...' }
+                ]
+            },
+            {
+                id: 11,
+                title: '沉睡的巨龙',
+                description: '你在禁林深处发现了一头沉睡的火龙，它的龙血可以让人获得超凡的力量...',
+                choices: [
+                    { text: '悄悄离开', path: 'light', result: '你选择了不打扰！\n这是最好的结果！' },
+                    { text: '取走龙血', path: 'dark', result: '龙血的力量在你体内燃烧！\n你获得了超凡的力量！' }
+                ]
+            },
+            {
+                id: 12,
+                title: '镜像世界的邀请',
+                description: '你发现了一面古老的镜子，它能通往一个镜像世界，那里有另一个你，答应与你共享力量...',
+                choices: [
+                    { text: '打碎镜子', path: 'light', result: '你打碎了镜子！\n镜像世界崩塌，你的本心更加坚定！' },
+                    { text: '进入镜像世界', path: 'dark', result: '你与镜像融合！\n两个世界的力量归于你一身！' }
+                ]
+            },
+            {
+                id: 13,
+                title: '魔法石的秘密',
+                description: '尼可·勒梅的秘密被你发现，魔法石可以让你获得永生，但需要牺牲他人的生命力量...',
+                choices: [
+                    { text: '将秘密上报邓布利多', path: 'light', result: '你保护了魔法石！\n邓布利多对你充满信任！' },
+                    { text: '暗中保留魔法石', path: 'dark', result: '你获得了永生的可能！\n魔法石的力量任你支配！' }
+                ]
+            },
+            {
+                id: 14,
+                title: '摄魂怪的背叛',
+                description: '摄魂怪发现了你，它们愿意与你做一笔交易：让你获得控制它们的力量，作为交换你要释放更多痛苦...',
+                choices: [
+                    { text: '坚决抵抗', path: 'light', result: '你战胜了摄魂怪！\n你的意志力空前强大！' },
+                    { text: '接受交易', path: 'dark', result: '摄魂怪为你所用！\n你可以让任何陷入绝望！' }
+                ]
+            },
+            {
+                id: 15,
+                title: '时间转换器的代价',
+                description: '你得到了一个时间转换器，但每次使用都会消耗使用者的生命...',
+                choices: [
+                    { text: '只用于紧急情况', path: 'light', result: '你谨慎使用时间的力量！\n避免了时间的反噬！' },
+                    { text: '频繁使用改变过去', path: 'dark', result: '你改变了历史！\n虽然付出了代价，但获得了操控时间的能力！' }
+                ]
+            },
+            {
+                id: 16,
+                title: '狼人的友谊',
+                description: '你认识了一位狼人朋友，他愿意教你如何控制狼人形态，但这会让你也变成狼人...',
+                choices: [
+                    { text: '帮助他保持人性', path: 'light', result: '你帮助他控制了自己！\n友谊之光战胜了黑暗！' },
+                    { text: '学习狼人力量', path: 'dark', result: '你成为了强大的狼人！\n在月圆之夜，你是无敌的！' }
+                ]
+            },
+            {
+                id: 17,
+                title: '消失柜的秘密',
+                description: '你发现了博金-博客店里的消失柜可以通往霍格沃茨，这个秘密可以让你做很多事...',
+                choices: [
+                    { text: '上报学校加强安保', path: 'light', result: '你保护了学校！\n校长为你的忠诚而骄傲！' },
+                    { text: '偷偷利用它', path: 'dark', result: '消失柜成了你的秘密通道！\n没人能阻止你的行动！' }
+                ]
+            },
+            {
+                id: 18,
+                title: '预言球的选择',
+                description: '你偶然得到了一个预言球，上面显示了一个关于魔法世界未来的预言，预言球可以卖个大价钱...',
+                choices: [
+                    { text: '将预言上报魔法部', path: 'light', result: '预言被妥善保管！\n你获得了魔法部的表彰！' },
+                    { text: '将预言卖给黑市', path: 'dark', result: '预言为你换来巨额财富！\n这些财富可以用于黑暗计划！' }
+                ]
+            }
+        ];
+
+        // 获取3个随机不重复的事件
+        function getRandomEvents() {
+            const shuffled = [...MAGIC_EVENTS].sort(() => Math.random() - 0.5);
+            return shuffled.slice(0, 3);
+        }
+
+        // 当前路径
+        let currentPath = 'light'; // 'light' 或 'dark'
+        let eventIndex = 0;
+        let pendingDarkUpgrade = false;
+        let currentEvents = [];
+
+        // 创建等级图例
+        function createLegend() {
+            const legend = document.getElementById('legend');
+            // 只显示到七年级（512）
+            const lightLevels = [2, 4, 8, 16, 32, 64, 128, 256, 512];
+
+            const lightColors = {
+                2: 'linear-gradient(145deg, #4a5568, #2d3748)',
+                4: 'linear-gradient(145deg, #744210, #5c2d0d)',
+                8: 'linear-gradient(145deg, #1e40af, #1e3a8a)',
+                16: 'linear-gradient(145deg, #7c3aed, #6d28d9)',
+                32: 'linear-gradient(145deg, #2c5282, #1a365d)',
+                64: 'linear-gradient(145deg, #553c9a, #44337a)',
+                128: 'linear-gradient(145deg, #c05621, #9c4221)',
+                256: 'linear-gradient(145deg, #0e7490, #155e75)',
+                512: 'linear-gradient(145deg, #9d174d, #831843)'
+            };
+
+            // 添加等级
+            lightLevels.forEach(level => {
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                item.innerHTML = `
+                    <div class="legend-color" style="background: ${lightColors[level]}"></div>
+                    <span>${WIZARD_LEVELS[level]}</span>
+                `;
+                legend.appendChild(item);
+            });
+
+            // 添加分隔
+            const divider = document.createElement('div');
+            divider.className = 'legend-divider';
+            divider.innerHTML = '<span>✦ 命运之路由你抉择 ✦</span>';
+            legend.appendChild(divider);
+        }
+        createLegend();
+
+        class HarryPotterGame {
+            constructor() {
+                this.size = 4;
+                this.grid = [];
+                this.score = 0;
+                this.bestScore = parseInt(localStorage.getItem('bestScoreWizardMobile')) || 0;
+                this.gameOver = false;
+                this.won = false;
+                this.achievementsShown = new Set();
+                this.isPaused = false;
+                this.previousState = null;
+                this.touchStartX = 0;
+                this.touchStartY = 0;
+                this.touchEndX = 0;
+                this.touchEndY = 0;
+                this.minSwipeDistance = 30;
+                // 复活次数统计
+                this.avadaCount = 0;
+                this.patronusCount = 0;
+                // 分支相关变量
+                this.currentPath = 'light'; // 'light' 或 'dark'
+                this.eventIndex = 0;
+                this.currentEvents = [];
+                this.darkModeUnlocked = false;
+                this.init();
+            }
+
+            init() {
+                this.gridElement = document.getElementById('grid');
+                this.gridContainer = document.getElementById('grid-container');
+                this.scoreElement = document.getElementById('score');
+                this.bestScoreElement = document.getElementById('best-score');
+                this.gameMessageElement = document.getElementById('game-message');
+                this.gameOverElement = document.getElementById('game-over');
+                this.finalScoreElement = document.getElementById('final-score');
+                this.finalBestScoreElement = document.getElementById('final-best-score');
+                this.achievementPopup = document.getElementById('achievement-popup');
+                this.achievementTitle = document.getElementById('achievement-title');
+                this.achievementLevel = document.getElementById('achievement-level');
+                this.achievementDesc = document.getElementById('achievement-desc');
+                this.achievementIcon = document.querySelector('.achievement-icon');
+                this.achievementContinueBtn = document.getElementById('achievement-continue');
+                this.undoBtn = document.getElementById('undo-btn');
+
+                // 弹窗元素
+                this.eventPopup = document.getElementById('event-popup');
+                this.resultPopup = document.getElementById('result-popup');
+
+                this.createGrid();
+                this.setupEventListeners();
+                this.updateBestScore();
+                this.newGame();
+                this.showSwipeHint();
+            }
+
+            createGrid() {
+                this.gridElement.innerHTML = '';
+                for (let i = 0; i < this.size * this.size; i++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    this.gridElement.appendChild(cell);
+                }
+            }
+
+            setupEventListeners() {
+                // 触摸事件
+                this.gridContainer.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: true });
+                this.gridContainer.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: true });
+                this.gridContainer.addEventListener('touchend', (e) => this.handleTouchEnd(e), { passive: true });
+
+                // 键盘事件（用于调试）
+                document.addEventListener('keydown', (e) => this.handleKeyPress(e));
+
+                // 按钮事件
+                document.getElementById('new-game').addEventListener('click', () => this.newGame());
+                document.getElementById('try-again').addEventListener('click', () => this.newGame());
+                document.getElementById('avada-btn').addEventListener('click', () => this.avadaKedavra());
+                document.getElementById('patronus-btn').addEventListener('click', () => this.expectoPatronum());
+                this.achievementContinueBtn.addEventListener('click', () => this.hideAchievement());
+                this.undoBtn.addEventListener('click', () => this.undo());
+
+                // 结果弹窗继续按钮
+                document.getElementById('result-continue').addEventListener('click', () => this.hideResultAndContinue());
+            }
+
+            saveState() {
+                this.previousState = {
+                    grid: this.grid.map(row => [...row]),
+                    score: this.score
+                };
+                this.undoBtn.disabled = false;
+            }
+
+            undo() {
+                if (!this.previousState) return;
+                this.grid = this.previousState.grid.map(row => [...row]);
+                this.score = this.previousState.score;
+                this.previousState = null;
+                this.undoBtn.disabled = true;
+                this.updateScore();
+                this.render();
+            }
+
+            // 阿瓦达索命 - 消除场上所有麻瓜(2)和哑炮(4)
+            avadaKedavra() {
+                if (!this.gameOver) return;
+
+                // 恢复游戏状态
+                this.gameOver = false;
+                this.gameOverElement.classList.remove('show');
+                this.gameMessageElement.textContent = '💀 阿瓦达索命！清除麻瓜和哑炮！';
+
+                // 增加阿瓦达索命次数统计
+                this.avadaCount++;
+                document.getElementById('avada-count').textContent = this.avadaCount;
+
+                // 播放阿瓦达效果动画
+                this.gridContainer.classList.add('avada-active');
+                setTimeout(() => this.gridContainer.classList.remove('avada-active'), 500);
+
+                // 先渲染当前状态，让用户看到要消除的方块
+                this.render();
+
+                // 延迟后消除所有2和4，添加新方块
+                setTimeout(() => {
+                    // 消除所有2和4
+                    for (let r = 0; r < this.size; r++) {
+                        for (let c = 0; c < this.size; c++) {
+                            if (this.grid[r][c] === 2 || this.grid[r][c] === 4) {
+                                this.grid[r][c] = 0;
+                            }
+                        }
+                    }
+
+                    // 至少保证有一个空位
+                    this.addRandomTile();
+                    this.render();
+
+                    // 检查是否还能移动
+                    if (!this.canMove()) {
+                        this.gameOver = true;
+                        this.finalScoreElement.textContent = this.score;
+                        this.finalBestScoreElement.textContent = Math.max(this.score, this.bestScore);
+                        this.gameOverElement.classList.add('show');
+                        this.gameMessageElement.textContent = '魔法旅程结束!';
+                    }
+                }, 300);
+
+                // 震动反馈
+                if (navigator.vibrate) {
+                    navigator.vibrate([50, 100, 50]);
+                }
+            }
+
+            // 呼神护卫 - 将场上最小数字晋级
+            expectoPatronum() {
+                if (!this.gameOver) return;
+
+                // 增加呼神护卫次数统计
+                this.patronusCount++;
+                document.getElementById('patronus-count').textContent = this.patronusCount;
+
+                // 找到场上最小的非零数字
+                let minValue = Infinity;
+                for (let r = 0; r < this.size; r++) {
+                    for (let c = 0; c < this.size; c++) {
+                        if (this.grid[r][c] > 0 && this.grid[r][c] < minValue) {
+                            minValue = this.grid[r][c];
+                        }
+                    }
+                }
+
+                if (minValue === Infinity || minValue >= 16384) {
+                    // 如果没有可以晋级的了，给一个随机方块
+                    this.gameOver = false;
+                    this.gameOverElement.classList.remove('show');
+                    this.gameMessageElement.textContent = '🦅 守护神显灵！';
+
+                    // 播放呼神护卫效果动画
+                    this.gridContainer.classList.add('patronus-active');
+                    setTimeout(() => this.gridContainer.classList.remove('patronus-active'), 600);
+
+                    this.addRandomTile();
+                    this.render();
+
+                    // 检查是否还能移动
+                    if (!this.canMove()) {
+                        this.gameOver = true;
+                        this.finalScoreElement.textContent = this.score;
+                        this.finalBestScoreElement.textContent = Math.max(this.score, this.bestScore);
+                        this.gameOverElement.classList.add('show');
+                        this.gameMessageElement.textContent = '魔法旅程结束!';
+                    }
+                    return;
+                }
+
+                // 恢复游戏状态
+                this.gameOver = false;
+                this.gameOverElement.classList.remove('show');
+                this.gameMessageElement.textContent = `🦅 守护神显灵！${minValue}晋级为${minValue * 2}！`;
+
+                // 播放呼神护卫效果动画
+                this.gridContainer.classList.add('patronus-active');
+                setTimeout(() => this.gridContainer.classList.remove('patronus-active'), 600);
+
+                // 先渲染当前状态，让用户看到要晋级的方块
+                this.render();
+
+                // 延迟后将所有最小数字晋级
+                setTimeout(() => {
+                    const newValue = minValue * 2;
+                    for (let r = 0; r < this.size; r++) {
+                        for (let c = 0; c < this.size; c++) {
+                            if (this.grid[r][c] === minValue) {
+                                this.grid[r][c] = newValue;
+                                this.score += newValue;
+                            }
+                        }
+                    }
+
+                    this.updateScore();
+                    this.render();
+
+                    // 检查是否还能移动
+                    if (!this.canMove()) {
+                        this.gameOver = true;
+                        this.finalScoreElement.textContent = this.score;
+                        this.finalBestScoreElement.textContent = Math.max(this.score, this.bestScore);
+                        this.gameOverElement.classList.add('show');
+                        this.gameMessageElement.textContent = '魔法旅程结束!';
+                    }
+                }, 300);
+
+                // 震动反馈
+                if (navigator.vibrate) {
+                    navigator.vibrate([50, 100, 50]);
+                }
+            }
+
+            handleTouchStart(e) {
+                if (this.gameOver || this.isPaused) return;
+                this.touchStartX = e.changedTouches[0].screenX;
+                this.touchStartY = e.changedTouches[0].screenY;
+            }
+
+            handleTouchMove(e) {
+                // 防止滚动
+                if (e.target.closest('#grid-container')) {
+                    e.preventDefault();
+                }
+            }
+
+            handleTouchEnd(e) {
+                if (this.gameOver || this.isPaused) return;
+
+                this.touchEndX = e.changedTouches[0].screenX;
+                this.touchEndY = e.changedTouches[0].screenY;
+
+                this.handleSwipe();
+            }
+
+            handleSwipe() {
+                const deltaX = this.touchEndX - this.touchStartX;
+                const deltaY = this.touchEndY - this.touchStartY;
+                const absDeltaX = Math.abs(deltaX);
+                const absDeltaY = Math.abs(deltaY);
+
+                // 检查是否达到最小滑动距离
+                if (Math.max(absDeltaX, absDeltaY) < this.minSwipeDistance) {
+                    return;
+                }
+
+                let moved = false;
+
+                // 判断滑动方向
+                if (absDeltaX > absDeltaY) {
+                    // 水平滑动
+                    if (deltaX > 0) {
+                        moved = this.moveRight();
+                    } else {
+                        moved = this.moveLeft();
+                    }
+                } else {
+                    // 垂直滑动
+                    if (deltaY > 0) {
+                        moved = this.moveDown();
+                    } else {
+                        moved = this.moveUp();
+                    }
+                }
+
+                if (moved) {
+                    // 震动反馈（如果设备支持）
+                    if (navigator.vibrate) {
+                        navigator.vibrate(10);
+                    }
+                    this.addRandomTile();
+                    this.render();
+                    this.checkGameState();
+                }
+            }
+
+            handleKeyPress(e) {
+                if (this.gameOver || this.isPaused) return;
+
+                let moved = false;
+                switch(e.key) {
+                    case 'ArrowUp':
+                        moved = this.moveUp();
+                        e.preventDefault();
+                        break;
+                    case 'ArrowDown':
+                        moved = this.moveDown();
+                        e.preventDefault();
+                        break;
+                    case 'ArrowLeft':
+                        moved = this.moveLeft();
+                        e.preventDefault();
+                        break;
+                    case 'ArrowRight':
+                        moved = this.moveRight();
+                        e.preventDefault();
+                        break;
+                }
+
+                if (moved) {
+                    this.addRandomTile();
+                    this.render();
+                    this.checkGameState();
+                }
+            }
+
+            showSwipeHint() {
+                const hint = document.createElement('div');
+                hint.className = 'swipe-hint';
+                hint.textContent = '→';
+                this.gridContainer.appendChild(hint);
+                setTimeout(() => hint.remove(), 2000);
+            }
+
+            newGame() {
+                this.grid = Array(this.size).fill(null).map(() => Array(this.size).fill(0));
+                this.score = 0;
+                this.avadaCount = 0;
+                this.patronusCount = 0;
+                // 更新显示
+                document.getElementById('avada-count').textContent = '0';
+                document.getElementById('patronus-count').textContent = '0';
+                this.gameOver = false;
+                this.won = false;
+                this.achievementsShown.clear();
+                this.isPaused = false;
+                this.previousState = null;
+                this.undoBtn.disabled = true;
+                this.gameOverElement.classList.remove('show');
+                this.hideAchievement();
+                this.gameMessageElement.textContent = '滑动屏幕移动';
+                this.updateScore();
+
+                this.addRandomTile();
+                this.addRandomTile();
+                this.render();
+            }
+
+            showAchievement(level) {
+                if (this.achievementsShown.has(level)) return;
+                this.achievementsShown.add(level);
+
+                const achievement = ACHIEVEMENTS[level];
+                if (achievement) {
+                    this.isPaused = true;
+                    this.achievementIcon.textContent = achievement.icon;
+                    this.achievementTitle.textContent = achievement.title;
+                    this.achievementLevel.textContent = WIZARD_LEVELS[level];
+                    this.achievementDesc.textContent = achievement.desc;
+                    this.achievementPopup.classList.add('show');
+
+                    // 震动反馈
+                    if (navigator.vibrate) {
+                        navigator.vibrate([50, 50, 50]);
+                    }
+                }
+            }
+
+            hideAchievement() {
+                this.achievementPopup.classList.remove('show');
+                this.isPaused = false;
+            }
+
+            addRandomTile() {
+                const emptyCells = [];
+                for (let r = 0; r < this.size; r++) {
+                    for (let c = 0; c < this.size; c++) {
+                        if (this.grid[r][c] === 0) {
+                            emptyCells.push({ r, c });
+                        }
+                    }
+                }
+
+                if (emptyCells.length > 0) {
+                    const { r, c } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                    this.grid[r][c] = Math.random() < 0.9 ? 2 : 4;
+                }
+            }
+
+            render() {
+                const cells = this.gridElement.children;
+                for (let r = 0; r < this.size; r++) {
+                    for (let c = 0; c < this.size; c++) {
+                        const index = r * this.size + c;
+                        const value = this.grid[r][c];
+                        const cell = cells[index];
+
+                        // 清除之前的dark-path类和文字长度类
+                        cell.classList.remove('dark-path', 'long-text', 'medium-text');
+
+                        if (value === 0) {
+                            cell.innerHTML = '';
+                            cell.setAttribute('data-value', '0');
+                        } else {
+                            // 根据当前路径显示正确的等级名称
+                            let levelName;
+                            let isDarkPath = false;
+                            if (this.currentPath === 'dark' && DARK_WIZARD_LEVELS[value]) {
+                                levelName = DARK_WIZARD_LEVELS[value];
+                                isDarkPath = true;
+                                cell.classList.add('dark-path');
+                            } else {
+                                levelName = WIZARD_LEVELS[value] || value;
+                            }
+                            // 根据文字长度添加样式类
+                            if (levelName.length >= 6) {
+                                cell.classList.add('long-text');
+                            } else if (levelName.length >= 4) {
+                                cell.classList.add('medium-text');
+                            }
+                            cell.innerHTML = `<div class="level-number">${value}</div><div class="level-name">${levelName}</div>`;
+                            cell.setAttribute('data-value', value);
+                        }
+                    }
+                }
+            }
+
+            updateScore() {
+                this.scoreElement.textContent = this.score;
+            }
+
+            updateBestScore() {
+                this.bestScoreElement.textContent = this.bestScore;
+            }
+
+            moveLeft() {
+                this.saveState();
+                let moved = false;
+                for (let r = 0; r < this.size; r++) {
+                    let row = this.grid[r].filter(v => v !== 0);
+                    let newRow = [];
+                    let merged = new Set();
+
+                    for (let i = 0; i < row.length; i++) {
+                        if (i + 1 < row.length && row[i] === row[i + 1] && !merged.has(i + 1)) {
+                            const mergedValue = row[i] * 2;
+                            newRow.push(mergedValue);
+                            this.score += mergedValue;
+                            merged.add(i + 1);
+                            if (this.score > this.bestScore) {
+                                this.bestScore = this.score;
+                                localStorage.setItem('bestScoreWizardMobile', this.bestScore);
+                                this.updateBestScore();
+                            }
+                            moved = true;
+                        } else if (!merged.has(i)) {
+                            newRow.push(row[i]);
+                        }
+                    }
+
+                    while (newRow.length < this.size) {
+                        newRow.push(0);
+                    }
+
+                    for (let c = 0; c < this.size; c++) {
+                        if (this.grid[r][c] !== newRow[c]) {
+                            moved = true;
+                        }
+                        this.grid[r][c] = newRow[c];
+                    }
+                }
+                this.updateScore();
+                if (!moved) this.previousState = null;
+                this.undoBtn.disabled = !this.previousState;
+                return moved;
+            }
+
+            moveRight() {
+                this.saveState();
+                let moved = false;
+                for (let r = 0; r < this.size; r++) {
+                    let row = this.grid[r].filter(v => v !== 0);
+                    let newRow = [];
+                    let merged = new Set();
+
+                    for (let i = row.length - 1; i >= 0; i--) {
+                        if (i - 1 >= 0 && row[i] === row[i - 1] && !merged.has(i - 1)) {
+                            const mergedValue = row[i] * 2;
+                            newRow.unshift(mergedValue);
+                            this.score += mergedValue;
+                            merged.add(i - 1);
+                            if (this.score > this.bestScore) {
+                                this.bestScore = this.score;
+                                localStorage.setItem('bestScoreWizardMobile', this.bestScore);
+                                this.updateBestScore();
+                            }
+                            moved = true;
+                        } else if (!merged.has(i)) {
+                            newRow.unshift(row[i]);
+                        }
+                    }
+
+                    while (newRow.length < this.size) {
+                        newRow.unshift(0);
+                    }
+
+                    for (let c = 0; c < this.size; c++) {
+                        if (this.grid[r][c] !== newRow[c]) {
+                            moved = true;
+                        }
+                        this.grid[r][c] = newRow[c];
+                    }
+                }
+                this.updateScore();
+                if (!moved) this.previousState = null;
+                this.undoBtn.disabled = !this.previousState;
+                return moved;
+            }
+
+            moveUp() {
+                this.saveState();
+                let moved = false;
+                for (let c = 0; c < this.size; c++) {
+                    let col = [];
+                    for (let r = 0; r < this.size; r++) {
+                        if (this.grid[r][c] !== 0) {
+                            col.push(this.grid[r][c]);
+                        }
+                    }
+
+                    let newCol = [];
+                    let merged = new Set();
+
+                    for (let i = 0; i < col.length; i++) {
+                        if (i + 1 < col.length && col[i] === col[i + 1] && !merged.has(i + 1)) {
+                            const mergedValue = col[i] * 2;
+                            newCol.push(mergedValue);
+                            this.score += mergedValue;
+                            merged.add(i + 1);
+                            if (this.score > this.bestScore) {
+                                this.bestScore = this.score;
+                                localStorage.setItem('bestScoreWizardMobile', this.bestScore);
+                                this.updateBestScore();
+                            }
+                            moved = true;
+                        } else if (!merged.has(i)) {
+                            newCol.push(col[i]);
+                        }
+                    }
+
+                    while (newCol.length < this.size) {
+                        newCol.push(0);
+                    }
+
+                    for (let r = 0; r < this.size; r++) {
+                        if (this.grid[r][c] !== newCol[r]) {
+                            moved = true;
+                        }
+                        this.grid[r][c] = newCol[r];
+                    }
+                }
+                this.updateScore();
+                if (!moved) this.previousState = null;
+                this.undoBtn.disabled = !this.previousState;
+                return moved;
+            }
+
+            moveDown() {
+                this.saveState();
+                let moved = false;
+                for (let c = 0; c < this.size; c++) {
+                    let col = [];
+                    for (let r = 0; r < this.size; r++) {
+                        if (this.grid[r][c] !== 0) {
+                            col.push(this.grid[r][c]);
+                        }
+                    }
+
+                    let newCol = [];
+                    let merged = new Set();
+
+                    for (let i = col.length - 1; i >= 0; i--) {
+                        if (i - 1 >= 0 && col[i] === col[i - 1] && !merged.has(i - 1)) {
+                            const mergedValue = col[i] * 2;
+                            newCol.unshift(mergedValue);
+                            this.score += mergedValue;
+                            merged.add(i - 1);
+                            if (this.score > this.bestScore) {
+                                this.bestScore = this.score;
+                                localStorage.setItem('bestScoreWizardMobile', this.bestScore);
+                                this.updateBestScore();
+                            }
+                            moved = true;
+                        } else if (!merged.has(i)) {
+                            newCol.unshift(col[i]);
+                        }
+                    }
+
+                    while (newCol.length < this.size) {
+                        newCol.unshift(0);
+                    }
+
+                    for (let r = 0; r < this.size; r++) {
+                        if (this.grid[r][c] !== newCol[r]) {
+                            moved = true;
+                        }
+                        this.grid[r][c] = newCol[r];
+                    }
+                }
+                this.updateScore();
+                if (!moved) this.previousState = null;
+                this.undoBtn.disabled = !this.previousState;
+                return moved;
+            }
+
+            checkGameState() {
+                // 检查是否达到成就等级
+                for (let r = 0; r < this.size; r++) {
+                    for (let c = 0; c < this.size; c++) {
+                        const value = this.grid[r][c];
+
+                        // 检查是否触发了魔法事件（七年级512合并成1024）
+                        if (value === 1024 && this.currentPath === 'light' && !this.darkModeUnlocked) {
+                            // 标记即将触发魔法事件，暂不显示成就弹窗
+                            this.darkModeUnlocked = true;
+                            // 延迟一下让玩家看到合并结果，然后开始魔法事件
+                            setTimeout(() => {
+                                this.startMagicEvents();
+                            }, 300);
+                            continue;
+                        }
+
+                        // 光明线成就（如果在魔法事件进行中则跳过1024成就）
+                        if (this.currentPath === 'light' && ACHIEVEMENTS[value]) {
+                            // 如果是1024且刚触发魔法事件，不显示成就，等魔法事件结束后显示
+                            if (value === 1024 && this.darkModeUnlocked) {
+                                continue;
+                            }
+                            this.showAchievement(value);
+                        }
+
+                        // 黑暗线成就
+                        if (this.currentPath === 'dark' && DARK_ACHIEVEMENTS[value]) {
+                            this.showDarkAchievement(value);
+                        }
+
+                        if (this.currentPath === 'light' && value === 16384 && !this.won) {
+                            this.won = true;
+                            setTimeout(() => {
+                                this.gameMessageElement.textContent = '⚡ 最伟大的白巫师！';
+                            }, 100);
+                        }
+
+                        if (this.currentPath === 'dark' && value === 16384 && !this.won) {
+                            this.won = true;
+                            setTimeout(() => {
+                                this.gameMessageElement.textContent = '☠ 最伟大的黑巫师！';
+                            }, 100);
+                        }
+
+                        // 梅林之约成就
+                        if (value === 32768) {
+                            if (this.currentPath === 'light') {
+                                this.won = true;
+                                setTimeout(() => {
+                                    this.gameMessageElement.textContent = '✨ 梅林之约！魔法之巅！';
+                                }, 100);
+                            } else {
+                                this.won = true;
+                                setTimeout(() => {
+                                    this.gameMessageElement.textContent = '👑 梅林之约！黑暗之主！';
+                                }, 100);
+                            }
+                        }
+                    }
+                }
+
+                if (!this.canMove()) {
+                    this.gameOver = true;
+                    this.finalScoreElement.textContent = this.score;
+                    this.finalBestScoreElement.textContent = Math.max(this.score, this.bestScore);
+                    this.gameOverElement.classList.add('show');
+                    this.gameMessageElement.textContent = '魔法旅程结束!';
+                }
+            }
+
+            // 开始魔法事件
+            startMagicEvents() {
+                this.currentEvents = getRandomEvents();
+                this.eventIndex = 0;
+                this.darkChoiceCount = 0; // 记录黑暗选择次数
+                this.showNextEvent();
+            }
+
+            // 显示下一个魔法事件
+            showNextEvent() {
+                if (this.eventIndex >= this.currentEvents.length) {
+                    // 事件结束，根据选择决定路线
+                    this.determinePath();
+                    return;
+                }
+
+                const event = this.currentEvents[this.eventIndex];
+                document.getElementById('event-title').textContent = event.title;
+                document.getElementById('event-desc').textContent = event.description;
+                document.getElementById('event-progress-num').textContent = this.eventIndex + 1;
+
+                const choicesContainer = document.getElementById('event-choices');
+                choicesContainer.innerHTML = '';
+
+                event.choices.forEach(choice => {
+                    const btn = document.createElement('button');
+                    btn.className = `event-choice-btn ${choice.path}`;
+                    btn.textContent = choice.text;
+                    btn.addEventListener('click', () => this.handleEventChoice(choice));
+                    choicesContainer.appendChild(btn);
+                });
+
+                this.eventPopup.classList.add('show');
+            }
+
+            // 处理事件选择
+            handleEventChoice(choice) {
+                this.eventPopup.classList.remove('show');
+
+                // 记录选择
+                if (choice.path === 'dark') {
+                    this.darkChoiceCount++;
+                }
+
+                // 显示结果 - 更隐晦的提示
+                const isDark = choice.path === 'dark';
+                document.getElementById('result-icon').textContent = isDark ? '🌑' : '🌕';
+                document.getElementById('result-title').textContent = isDark ? '命运已改写' : '命运仍在前行';
+                document.getElementById('result-desc').textContent = choice.result;
+
+                if (isDark) {
+                    this.resultPopup.classList.add('dark-result');
+                } else {
+                    this.resultPopup.classList.remove('dark-result');
+                }
+
+                this.resultPopup.classList.add('show');
+            }
+
+            // 隐藏结果并继续
+            hideResultAndContinue() {
+                this.resultPopup.classList.remove('show');
+                this.resultPopup.classList.remove('dark-result');
+                this.eventIndex++;
+                this.showNextEvent();
+            }
+
+            // 根据选择决定路线
+            determinePath() {
+                // 2次及以上黑暗选择走黑暗路线
+                if (this.darkChoiceCount >= 2) {
+                    this.currentPath = 'dark';
+                    this.promoteToDarkWizard();
+                } else {
+                    this.currentPath = 'light';
+                    // 光明线继续，显示实习傲罗成就
+                    setTimeout(() => {
+                        this.showAchievement(1024);
+                    }, 300);
+                }
+            }
+
+            // 晋升为黑暗巫师
+            promoteToDarkWizard() {
+                this.score += 1024;
+                this.updateScore();
+                this.render();
+
+                // 显示成就
+                setTimeout(() => {
+                    this.showDarkAchievement(1024);
+                }, 500);
+            }
+
+            // 显示黑暗线成就
+            showDarkAchievement(level) {
+                if (this.achievementsShown.has('dark_' + level)) return;
+                this.achievementsShown.add('dark_' + level);
+
+                const achievement = DARK_ACHIEVEMENTS[level];
+                if (achievement) {
+                    this.isPaused = true;
+                    this.achievementIcon.textContent = achievement.icon;
+                    this.achievementTitle.textContent = achievement.title;
+                    this.achievementLevel.textContent = DARK_WIZARD_LEVELS[level];
+                    this.achievementDesc.textContent = achievement.desc;
+                    this.achievementPopup.classList.add('show');
+
+                    // 震动反馈
+                    if (navigator.vibrate) {
+                        navigator.vibrate([50, 50, 50]);
+                    }
+                }
+            }
+
+            canMove() {
+                for (let r = 0; r < this.size; r++) {
+                    for (let c = 0; c < this.size; c++) {
+                        if (this.grid[r][c] === 0) return true;
+                    }
+                }
+
+                for (let r = 0; r < this.size; r++) {
+                    for (let c = 0; c < this.size; c++) {
+                        const current = this.grid[r][c];
+                        if (r < this.size - 1 && this.grid[r + 1][c] === current) return true;
+                        if (c < this.size - 1 && this.grid[r][c + 1] === current) return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        // 启动游戏
+        const game = new HarryPotterGame();
+    </script>
+    <!-- 水印 -->
+    <div class="watermark">小红书@+7+7+</div>
+</body>
+</html>
